@@ -1,0 +1,50 @@
+:root {
+  --label-width: 168px;
+  --task-width: 108px;
+  --task-height: 48px;
+}
+
+.app-shell {
+  min-height: 100vh;
+  background: #f5f7fa;
+  color: #172033;
+}
+
+.test-list-view,
+.detail-view {
+  min-height: 100vh;
+  padding: 28px;
+}
+
+.page-header,
+.detail-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  margin: 0 0 22px;
+}
+
+.eyebrow {
+  margin: 0 0 6px;
+  color: #326c5f;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0;
+  color: #101827;
+  font-size: 1.65rem;
+  line-height: 1.2;
+}
+
+.test-row:focus-visible,
+.upload-button:focus-within,
+.back-button:focus-visible,
+.rank-header:focus-visible {
+  outline: 3px solid rgba(50, 108, 95, 0.32);
+  outline-offset: 2px;
+}

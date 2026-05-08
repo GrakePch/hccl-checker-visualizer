@@ -1,0 +1,34 @@
+@media (max-width: 760px) {
+  :root {
+    --label-width: 132px;
+    --task-width: 92px;
+  }
+
+  .test-list-view,
+  .detail-view {
+    padding: 16px;
+  }
+
+  .page-header,
+  .detail-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .test-row {
+    display: grid;
+    gap: 8px;
+  }
+
+  .detail-metrics {
+    justify-content: flex-start;
+  }
+
+  .detail-actions {
+    justify-content: flex-start;
+  }
+
+  .rank-header {
+    width: max(100%, 420px);
+  }
+}

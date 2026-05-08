@@ -207,9 +207,8 @@ export function TestDetail({
 
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
-      clearArrowRenderTimeout();
     };
-  }, [clearArrowRenderTimeout, onTaskWidthChange, scheduleArrowRender, taskWidth]);
+  }, [onTaskWidthChange, scheduleArrowRender, taskWidth]);
 
   function handleTaskWidthChange(event: ChangeEvent<HTMLInputElement>) {
     scheduleArrowRender();

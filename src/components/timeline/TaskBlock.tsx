@@ -24,6 +24,8 @@ type TaskBlockProps = {
 
 export function TaskBlock({ rankId, queueId, task }: TaskBlockProps) {
   const taskAbbreviation = getTaskAbbreviation(task.name);
+  const taskTitle = task.stuck ? `${task.name} ⚠️Stuck` : task.name;
+  const taskShortTitle = task.stuck ? `${taskAbbreviation} ⚠️Stuck` : taskAbbreviation;
   const subtitle = getTaskSubtitle(task);
   const taskNameRef = useRef<HTMLSpanElement | null>(null);
   const taskNameMeasureRef = useRef<HTMLSpanElement | null>(null);
@@ -39,12 +41,12 @@ export function TaskBlock({ rankId, queueId, task }: TaskBlockProps) {
     const availableWidth = taskNameElement.clientWidth;
     const fullNameWidth = measureElement.scrollWidth;
     const shouldAbbreviate =
-      taskAbbreviation !== task.name && fullNameWidth > availableWidth + 1;
+      taskShortTitle !== taskTitle && fullNameWidth > availableWidth + 1;
 
     setIsNameAbbreviated((current) =>
       current === shouldAbbreviate ? current : shouldAbbreviate,
     );
-  }, [task.name, taskAbbreviation]);
+  }, [taskShortTitle, taskTitle]);
 
   useLayoutEffect(() => {
     let frameId: number | null = null;
@@ -80,11 +82,11 @@ export function TaskBlock({ rankId, queueId, task }: TaskBlockProps) {
 
   return (
     <div
-      className={getTaskClassName(task.name)}
+      className={getTaskClassName(task)}
       data-global-task-id={getGlobalTaskElementId(rankId, queueId, task.index)}
       data-task-id={getTaskElementId(queueId, task.index)}
       style={{ gridColumn: `span ${task.span ?? 1}` }}
-      title={`#${task.index} ${task.name}\n${formatAttributes(
+      title={`#${task.index} ${taskTitle}\n${formatAttributes(
         task.attributes,
       )}`}
     >
@@ -92,20 +94,20 @@ export function TaskBlock({ rankId, queueId, task }: TaskBlockProps) {
       <span
         className={`task-name${isNameAbbreviated ? ' is-abbreviated' : ''}`}
         ref={taskNameRef}
-        aria-label={task.name}
+        aria-label={taskTitle}
       >
         <span className="task-name-full" aria-hidden={isNameAbbreviated}>
-          {task.name}
+          {taskTitle}
         </span>
         <span className="task-name-short" aria-hidden={!isNameAbbreviated}>
-          {taskAbbreviation}
+          {taskShortTitle}
         </span>
         <span
           className="task-name-measure"
           ref={taskNameMeasureRef}
           aria-hidden="true"
         >
-          {task.name}
+          {taskTitle}
         </span>
       </span>
       {subtitle && <span className="task-meta">{subtitle}</span>}

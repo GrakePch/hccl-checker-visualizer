@@ -297,13 +297,23 @@
 }
 
 .task-wait {
-  --task-accent: #d3a857;
-  background: #f9e4b7;
+  --task-accent: #cf8276;
+  background: #f6cfc7;
+}
+
+.task-stuck {
+  --task-accent: #8f0000;
+  background: #d50000;
+  color: #ffffff;
+}
+
+.task-stuck .task-meta {
+  color: rgba(255, 255, 255, 0.82);
 }
 
 .task-write {
-  --task-accent: #cf8276;
-  background: #f6cfc7;
+  --task-accent: #d3a857;
+  background: #f9e4b7;
 }
 
 .task-read {
@@ -314,4 +324,14 @@
 .task-default {
   --task-accent: #9aa5b6;
   background: #e4e8ef;
+}
+
+.task-non-reachable {
+  --task-accent: #c9ced6;
+  background: #eef0f3;
+  color: #7b8491;
+}
+
+.task-non-reachable .task-meta {
+  color: #9aa2ad;
 }

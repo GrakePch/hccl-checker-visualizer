@@ -1,25 +1,31 @@
 import type { Task } from '../parseStLog';
 
-export function getTaskClassName(taskName: string) {
+export function getTaskClassName(task: Task) {
+  const taskName = task.name;
   const normalizedName = taskName.toLowerCase();
+  const stateClassName = task.nonReachable
+    ? ' task-non-reachable'
+    : task.stuck
+      ? ' task-stuck'
+      : '';
 
   if (normalizedName.includes('wait')) {
-    return 'task-block task-wait';
+    return `task-block task-wait${stateClassName}`;
   }
   if (normalizedName.includes('post')) {
-    return 'task-block task-post';
+    return `task-block task-post${stateClassName}`;
   }
   if (normalizedName.includes('copy')) {
-    return 'task-block task-copy';
+    return `task-block task-copy${stateClassName}`;
   }
   if (normalizedName.includes('write')) {
-    return 'task-block task-write';
+    return `task-block task-write${stateClassName}`;
   }
   if (normalizedName.includes('read')) {
-    return 'task-block task-read';
+    return `task-block task-read${stateClassName}`;
   }
 
-  return 'task-block task-default';
+  return `task-block task-default${stateClassName}`;
 }
 
 export function getTaskAbbreviation(taskName: string) {
@@ -44,11 +50,11 @@ export function getTaskSubtitle(task: Task) {
   }
 
   if (task.name === 'Post') {
-    return `rank ${task.postToTask?.rankId ?? '-'}`;
+    return `rank ${task.postToTask?.rankId ?? task.attributes.remoteRank ?? '-'}`;
   }
 
   if (task.name === 'Wait') {
-    return `rank ${task.waitFromTask?.rankId ?? '-'}`;
+    return `rank ${task.waitFromTask?.rankId ?? task.attributes.remoteRank ?? '-'}`;
   }
 
   return '';

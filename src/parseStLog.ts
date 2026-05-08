@@ -3,6 +3,8 @@ export type Task = {
   name: string;
   attributes: Record<string, string>;
   span?: number;
+  nonReachable?: boolean;
+  stuck?: boolean;
   waitFromTask?: {
     queueId: number;
     rankId?: number;
@@ -248,6 +250,26 @@ function getStreamStates(group: ParseGroup): StreamState[] {
   );
 }
 
+function clearTaskInteraction(task: Task) {
+  delete task.postToTask;
+  delete task.waitFromTask;
+}
+
+function markRemainingTasksNonReachable(state: StreamState, startIndex: number) {
+  let markedTaskCount = 0;
+
+  for (let index = startIndex; index < state.stream.tasks.length; index += 1) {
+    const task = state.stream.tasks[index];
+    task.span = 1;
+    task.nonReachable = true;
+    delete task.stuck;
+    clearTaskInteraction(task);
+    markedTaskCount += 1;
+  }
+
+  return markedTaskCount;
+}
+
 function simulateWaitSpans(group: ParseGroup) {
   const streamStates = getStreamStates(group);
   const totalTaskCount = streamStates.reduce(
@@ -338,8 +360,9 @@ function simulateWaitSpans(group: ParseGroup) {
 
     for (const { state, task } of completingTasks) {
       task.span = 1;
-      delete task.postToTask;
-      delete task.waitFromTask;
+      delete task.nonReachable;
+      delete task.stuck;
+      clearTaskInteraction(task);
       state.pointer += 1;
       state.startTime = time + 1;
       completedTaskCount += 1;
@@ -348,6 +371,8 @@ function simulateWaitSpans(group: ParseGroup) {
 
     for (const { post, state, task } of completingLocalWaits) {
       task.span = time + 1 - state.startTime;
+      delete task.nonReachable;
+      delete task.stuck;
       if (post === null) {
         delete task.waitFromTask;
       } else {
@@ -366,6 +391,8 @@ function simulateWaitSpans(group: ParseGroup) {
 
     for (const { post, state, task } of completingRemoteWaits) {
       task.span = time + 1 - state.startTime;
+      delete task.nonReachable;
+      delete task.stuck;
       task.waitFromTask = {
         queueId: post.queueId,
         rankId: post.rankId,
@@ -391,11 +418,17 @@ function simulateWaitSpans(group: ParseGroup) {
         }
 
         task.span = Math.max(1, time + 1 - state.startTime);
-        delete task.waitFromTask;
-        state.pointer += 1;
+        delete task.nonReachable;
+        task.stuck = true;
+        clearTaskInteraction(task);
+        const nonReachableTaskCount = markRemainingTasksNonReachable(
+          state,
+          state.pointer + 1,
+        );
+        state.pointer = state.stream.tasks.length;
         state.startTime = time + 1;
-        completedTaskCount += 1;
-        completedThisTick += 1;
+        completedTaskCount += 1 + nonReachableTaskCount;
+        completedThisTick += 1 + nonReachableTaskCount;
       }
     }
 

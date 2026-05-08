@@ -104,6 +104,7 @@ export function TestDetail({
           for (const task of stream.tasks) {
             if (
               task.name !== 'Wait' ||
+              task.nonReachable ||
               !task.waitFromTask ||
               task.waitFromTask.rankId === undefined ||
               task.waitFromTask.rankId === rank.rankId ||

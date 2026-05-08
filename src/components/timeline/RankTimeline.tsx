@@ -61,7 +61,7 @@ export function RankTimeline({
 
       for (const stream of rank.streams) {
         for (const task of stream.tasks) {
-          if (!task.waitFromTask) {
+          if (task.nonReachable || !task.waitFromTask) {
             continue;
           }
           if (

@@ -202,7 +202,6 @@
 
 .task-block {
   position: relative;
-  container-type: inline-size;
   display: grid;
   align-content: center;
   gap: 2px;
@@ -244,6 +243,7 @@
 }
 
 .task-name {
+  position: relative;
   font-size: 0.72rem;
   font-weight: 500;
 }
@@ -259,6 +259,7 @@
   display: block;
   min-width: 0;
   overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -266,14 +267,23 @@
   display: none;
 }
 
-@container (max-width: 96px) {
-  .task-name-full {
-    display: none;
-  }
+.task-name.is-abbreviated .task-name-full {
+  display: none;
+}
 
-  .task-name-short {
-    display: block;
-  }
+.task-name.is-abbreviated .task-name-short {
+  display: block;
+}
+
+.task-name-measure {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: max-content;
+  min-width: max-content;
+  overflow: visible;
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .task-copy {

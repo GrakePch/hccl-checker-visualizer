@@ -1,3 +1,9 @@
+import {
+  useCallback,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import type { Task } from '../../parseStLog';
 import {
   formatAttributes,
@@ -19,6 +25,58 @@ type TaskBlockProps = {
 export function TaskBlock({ rankId, queueId, task }: TaskBlockProps) {
   const taskAbbreviation = getTaskAbbreviation(task.name);
   const subtitle = getTaskSubtitle(task);
+  const taskNameRef = useRef<HTMLSpanElement | null>(null);
+  const taskNameMeasureRef = useRef<HTMLSpanElement | null>(null);
+  const [isNameAbbreviated, setIsNameAbbreviated] = useState(false);
+
+  const measureNameOverflow = useCallback(() => {
+    const taskNameElement = taskNameRef.current;
+    const measureElement = taskNameMeasureRef.current;
+    if (!taskNameElement || !measureElement) {
+      return;
+    }
+
+    const availableWidth = taskNameElement.clientWidth;
+    const fullNameWidth = measureElement.scrollWidth;
+    const shouldAbbreviate =
+      taskAbbreviation !== task.name && fullNameWidth > availableWidth + 1;
+
+    setIsNameAbbreviated((current) =>
+      current === shouldAbbreviate ? current : shouldAbbreviate,
+    );
+  }, [task.name, taskAbbreviation]);
+
+  useLayoutEffect(() => {
+    let frameId: number | null = null;
+
+    function scheduleMeasure() {
+      if (frameId !== null) {
+        return;
+      }
+
+      frameId = window.requestAnimationFrame(() => {
+        frameId = null;
+        measureNameOverflow();
+      });
+    }
+
+    measureNameOverflow();
+
+    const taskNameElement = taskNameRef.current;
+    const resizeObserver = new ResizeObserver(scheduleMeasure);
+    if (taskNameElement) {
+      resizeObserver.observe(taskNameElement);
+    }
+    window.addEventListener('resize', scheduleMeasure);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', scheduleMeasure);
+      if (frameId !== null) {
+        window.cancelAnimationFrame(frameId);
+      }
+    };
+  }, [measureNameOverflow]);
 
   return (
     <div
@@ -31,12 +89,23 @@ export function TaskBlock({ rankId, queueId, task }: TaskBlockProps) {
       )}`}
     >
       <span className="task-badge">{task.index}</span>
-      <span className="task-name" aria-label={task.name}>
-        <span className="task-name-full" aria-hidden="true">
+      <span
+        className={`task-name${isNameAbbreviated ? ' is-abbreviated' : ''}`}
+        ref={taskNameRef}
+        aria-label={task.name}
+      >
+        <span className="task-name-full" aria-hidden={isNameAbbreviated}>
           {task.name}
         </span>
-        <span className="task-name-short" aria-hidden="true">
+        <span className="task-name-short" aria-hidden={!isNameAbbreviated}>
           {taskAbbreviation}
+        </span>
+        <span
+          className="task-name-measure"
+          ref={taskNameMeasureRef}
+          aria-hidden="true"
+        >
+          {task.name}
         </span>
       </span>
       {subtitle && <span className="task-meta">{subtitle}</span>}

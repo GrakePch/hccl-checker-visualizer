@@ -115,7 +115,7 @@
 .rank-summary {
   color: #697488;
   font-size: 0.82rem;
-  font-weight: 700;
+  font-weight: 400;
 }
 
 .stream-list {
@@ -160,19 +160,18 @@
   position: sticky;
   left: 8px;
   z-index: 3;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+  display: grid;
+  align-content: center;
+  gap: 2px;
   width: var(--label-width);
   min-height: var(--task-height);
-  padding: 4px 10px;
+  padding: 4px 8px;
   border-right: 1px solid #dce3ed;
   border-radius: 6px 0 0 6px;
   background: #f1f4f8;
   color: #334052;
   font-size: 0.8rem;
-  font-weight: 900;
+  font-weight: 700;
 }
 
 .stream-label span:first-child,
@@ -180,6 +179,12 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.stream-label span:last-child {
+  color: #697488;
+  font-size: 0.72rem;
+  font-weight: 400;
 }
 
 .task-strip {

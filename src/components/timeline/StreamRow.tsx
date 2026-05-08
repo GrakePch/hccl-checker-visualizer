@@ -29,7 +29,7 @@ export function StreamRow({ rankId, stream, onTasksVisible }: StreamRowProps) {
     <div className="stream-row" ref={streamRowRef}>
       <div className="stream-label">
         <span>Stream {stream.queueId}</span>
-        <span>{stream.tasks.length}</span>
+        <span>{stream.tasks.length} tasks</span>
       </div>
       {isStreamVisible ? (
         <div

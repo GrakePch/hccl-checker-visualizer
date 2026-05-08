@@ -244,9 +244,10 @@ export function TestDetail({
         <div className="detail-title">
           <h1>{test.testName}</h1>
           <div className="detail-metrics" aria-label="Test summary">
-            <span>{stats.rankCount} ranks</span>
-            <span>{stats.streamCount} streams</span>
-            <span>{stats.taskCount} tasks</span>
+            <span>
+              {stats.rankCount} ranks / {stats.streamCount} streams /{' '}
+              {stats.taskCount} tasks
+            </span>
           </div>
         </div>
         <div className="detail-actions">

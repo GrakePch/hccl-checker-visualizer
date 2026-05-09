@@ -2,12 +2,13 @@ import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { LAZY_RANK_ROOT_MARGIN } from '../../constants';
 import { useLazyVisibility } from '../../hooks/useLazyVisibility';
 import type { RankTrack } from '../../parseStLog';
-import type { WaitArrow } from '../../types';
+import type { VisibleTaskUnitRange, WaitArrow } from '../../types';
 import {
   getRankEstimatedHeight,
   getRankPlaceholderWidth,
   getTaskElementId,
 } from '../../utils/timelineLayout';
+import { getVisibleTasks } from '../../utils/taskWindow';
 import { StreamRow } from './StreamRow';
 
 type RankTimelineProps = {
@@ -16,6 +17,7 @@ type RankTimelineProps = {
   onLazyRenderChange: () => void;
   shouldRenderArrows: boolean;
   onToggle: (rankId: number) => void;
+  visibleTaskUnitRange: VisibleTaskUnitRange;
 };
 
 export function RankTimeline({
@@ -24,6 +26,7 @@ export function RankTimeline({
   onLazyRenderChange,
   shouldRenderArrows,
   onToggle,
+  visibleTaskUnitRange,
 }: RankTimelineProps) {
   const [rankTrackRef, isRankVisible] = useLazyVisibility<HTMLElement>(
     LAZY_RANK_ROOT_MARGIN,
@@ -60,7 +63,7 @@ export function RankTimeline({
       const nextArrows: WaitArrow[] = [];
 
       for (const stream of rank.streams) {
-        for (const task of stream.tasks) {
+        for (const task of getVisibleTasks(stream, visibleTaskUnitRange)) {
           if (task.nonReachable || !task.waitFromTask) {
             continue;
           }
@@ -115,7 +118,14 @@ export function RankTimeline({
       resizeObserver.disconnect();
       window.removeEventListener('resize', measureArrows);
     };
-  }, [isCollapsed, isRankVisible, rank, shouldRenderArrows, visibleStreamVersion]);
+  }, [
+    isCollapsed,
+    isRankVisible,
+    rank,
+    shouldRenderArrows,
+    visibleStreamVersion,
+    visibleTaskUnitRange,
+  ]);
 
   if (!isRankVisible) {
     return (
@@ -189,6 +199,7 @@ export function RankTimeline({
               onTasksVisible={handleTasksVisible}
               rankId={rank.rankId}
               stream={stream}
+              visibleTaskUnitRange={visibleTaskUnitRange}
             />
           ))}
         </div>

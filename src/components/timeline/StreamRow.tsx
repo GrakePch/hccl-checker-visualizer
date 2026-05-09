@@ -1,7 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { LAZY_STREAM_ROOT_MARGIN } from '../../constants';
 import { useLazyVisibility } from '../../hooks/useLazyVisibility';
 import type { StreamTrack } from '../../parseStLog';
+import type { VisibleTaskUnitRange } from '../../types';
+import { getVisibleTasks } from '../../utils/taskWindow';
 import {
   getStreamPlaceholderWidth,
   getStreamUnits,
@@ -12,11 +14,21 @@ type StreamRowProps = {
   rankId: number;
   stream: StreamTrack;
   onTasksVisible: () => void;
+  visibleTaskUnitRange: VisibleTaskUnitRange;
 };
 
-export function StreamRow({ rankId, stream, onTasksVisible }: StreamRowProps) {
+export function StreamRow({
+  rankId,
+  stream,
+  onTasksVisible,
+  visibleTaskUnitRange,
+}: StreamRowProps) {
   const [streamRowRef, isStreamVisible] = useLazyVisibility<HTMLDivElement>(
     LAZY_STREAM_ROOT_MARGIN,
+  );
+  const visibleTasks = useMemo(
+    () => getVisibleTasks(stream, visibleTaskUnitRange),
+    [stream, visibleTaskUnitRange],
   );
 
   useEffect(() => {
@@ -40,7 +52,7 @@ export function StreamRow({ rankId, stream, onTasksVisible }: StreamRowProps) {
             )}, var(--task-width))`,
           }}
         >
-          {stream.tasks.map((task) => (
+          {visibleTasks.map((task) => (
             <TaskBlock
               key={`${stream.queueId}-${task.index}`}
               queueId={stream.queueId}

@@ -2,6 +2,8 @@ export type Task = {
   index: number;
   name: string;
   attributes: Record<string, string>;
+  startUnit: number;
+  endUnit: number;
   span?: number;
   nonReachable?: boolean;
   stuck?: boolean;
@@ -19,6 +21,7 @@ export type Task = {
 
 export type StreamTrack = {
   queueId: number;
+  totalUnits: number;
   tasks: Task[];
 };
 
@@ -93,6 +96,7 @@ function getStream(rank: MutableRankTrack, queueId: number) {
   if (!stream) {
     stream = {
       queueId,
+      totalUnits: 0,
       tasks: [],
     };
     rank.streamMap.set(queueId, stream);
@@ -437,6 +441,23 @@ function simulateWaitSpans(group: ParseGroup) {
   }
 }
 
+function assignTimelineLayout(group: ParseGroup) {
+  for (const rank of group.ranks) {
+    for (const stream of rank.streams) {
+      let cursor = 0;
+
+      for (const task of stream.tasks) {
+        const span = task.span ?? 1;
+        task.startUnit = cursor;
+        task.endUnit = cursor + span;
+        cursor += span;
+      }
+
+      stream.totalUnits = cursor;
+    }
+  }
+}
+
 function finalizeGroup(
   group: ParseGroup | null,
   fallbackTestName: string,
@@ -447,6 +468,7 @@ function finalizeGroup(
   }
 
   simulateWaitSpans(group);
+  assignTimelineLayout(group);
 
   groups.push({
     testName: group.testName || fallbackTestName,
@@ -454,6 +476,7 @@ function finalizeGroup(
       rankId: rank.rankId,
       streams: rank.streams.map((stream) => ({
         queueId: stream.queueId,
+        totalUnits: stream.totalUnits,
         tasks: stream.tasks,
       })),
     })),
@@ -521,6 +544,8 @@ export function parseStLog(contents: string): TestCase[] {
       index: Number(indexText),
       name,
       attributes: parseAttributes(attributeText),
+      startUnit: 0,
+      endUnit: 1,
     });
     currentGroup.taskCount += 1;
   }

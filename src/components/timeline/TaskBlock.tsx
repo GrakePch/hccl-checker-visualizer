@@ -1,4 +1,5 @@
 import {
+  memo,
   useCallback,
   useLayoutEffect,
   useRef,
@@ -22,7 +23,11 @@ type TaskBlockProps = {
   task: Task;
 };
 
-export function TaskBlock({ rankId, queueId, task }: TaskBlockProps) {
+export const TaskBlock = memo(function TaskBlock({
+  rankId,
+  queueId,
+  task,
+}: TaskBlockProps) {
   const taskAbbreviation = getTaskAbbreviation(task.name);
   const taskTitle = task.stuck ? `${task.name} ⚠️Stuck` : task.name;
   const taskShortTitle = task.stuck ? `${taskAbbreviation} ⚠️Stuck` : taskAbbreviation;
@@ -85,7 +90,7 @@ export function TaskBlock({ rankId, queueId, task }: TaskBlockProps) {
       className={getTaskClassName(task)}
       data-global-task-id={getGlobalTaskElementId(rankId, queueId, task.index)}
       data-task-id={getTaskElementId(queueId, task.index)}
-      style={{ gridColumn: `span ${task.span ?? 1}` }}
+      style={{ gridColumn: `${task.startUnit + 1} / span ${task.span ?? 1}` }}
       title={`#${task.index} ${taskTitle}\n${formatAttributes(
         task.attributes,
       )}`}
@@ -113,4 +118,4 @@ export function TaskBlock({ rankId, queueId, task }: TaskBlockProps) {
       {subtitle && <span className="task-meta">{subtitle}</span>}
     </div>
   );
-}
+});

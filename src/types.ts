@@ -11,3 +11,8 @@ export type WaitArrow = {
   endX: number;
   endY: number;
 };
+
+export type VisibleTaskUnitRange = {
+  startUnit: number;
+  endUnit: number;
+};

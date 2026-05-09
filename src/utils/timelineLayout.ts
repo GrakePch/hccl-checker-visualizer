@@ -8,7 +8,7 @@ import {
 import type { RankTrack, StreamTrack } from '../parseStLog';
 
 export function getStreamUnits(stream: StreamTrack) {
-  return stream.tasks.reduce((sum, task) => sum + (task.span ?? 1), 0);
+  return stream.totalUnits;
 }
 
 export function getTaskElementId(queueId: number, taskIndex: number) {

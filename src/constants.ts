@@ -9,6 +9,9 @@ export const TASK_WIDTH_QUERY_PARAM = 'task-width';
 
 export const LAZY_RANK_ROOT_MARGIN = '1000px 0px';
 export const LAZY_STREAM_ROOT_MARGIN = '900px 1200px';
+export const TASK_RENDER_OVERSCAN_PX = 1200;
+export const TASK_STRIP_GAP_PX = 4;
+export const TASK_STRIP_HORIZONTAL_PADDING_PX = 5;
 
 export const RANK_HEADER_ESTIMATED_HEIGHT = 42;
 export const STREAM_ROW_ESTIMATED_HEIGHT = 48;

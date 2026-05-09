@@ -306,13 +306,15 @@
   background: #f6cfc7;
 }
 
-.task-stuck {
+.task-stuck,
+.task-unmatched {
   --task-accent: #8f0000;
   background: #d50000;
   color: #ffffff;
 }
 
-.task-stuck .task-meta {
+.task-stuck .task-meta,
+.task-unmatched .task-meta {
   color: rgba(255, 255, 255, 0.82);
 }
 

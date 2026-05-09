@@ -29,8 +29,12 @@ export const TaskBlock = memo(function TaskBlock({
   task,
 }: TaskBlockProps) {
   const taskAbbreviation = getTaskAbbreviation(task.name);
-  const taskTitle = task.stuck ? `${task.name} ⚠️Stuck` : task.name;
-  const taskShortTitle = task.stuck ? `${taskAbbreviation} ⚠️Stuck` : taskAbbreviation;
+  const issueLabel =
+    task.stuck || task.postToNowhere ? '⚠️Unmatched' : '';
+  const taskTitle = issueLabel ? `${task.name} ${issueLabel}` : task.name;
+  const taskShortTitle = issueLabel
+    ? `${taskAbbreviation} ${issueLabel}`
+    : taskAbbreviation;
   const subtitle = getTaskSubtitle(task);
   const taskNameRef = useRef<HTMLSpanElement | null>(null);
   const taskNameMeasureRef = useRef<HTMLSpanElement | null>(null);

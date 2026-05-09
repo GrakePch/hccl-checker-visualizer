@@ -5,8 +5,8 @@ export function getTaskClassName(task: Task) {
   const normalizedName = taskName.toLowerCase();
   const stateClassName = task.nonReachable
     ? ' task-non-reachable'
-    : task.stuck
-      ? ' task-stuck'
+    : task.stuck || task.postToNowhere
+      ? ' task-unmatched'
       : '';
 
   if (normalizedName.includes('wait')) {

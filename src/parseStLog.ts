@@ -6,6 +6,7 @@ export type Task = {
   endUnit: number;
   span?: number;
   nonReachable?: boolean;
+  postToNowhere?: boolean;
   stuck?: boolean;
   waitFromTask?: {
     queueId: number;
@@ -257,6 +258,7 @@ function getStreamStates(group: ParseGroup): StreamState[] {
 
 function clearTaskInteraction(task: Task) {
   delete task.postToTask;
+  delete task.postToNowhere;
   delete task.waitFromTask;
 }
 
@@ -386,6 +388,11 @@ function simulateWaitSpans(group: ParseGroup) {
           rankId: post.rankId,
           taskIndex: post.taskIndex,
         };
+        post.task.postToTask = {
+          queueId: state.stream.queueId,
+          rankId: state.rank.rankId,
+          taskIndex: task.index,
+        };
       }
 
       state.pointer += 1;
@@ -438,6 +445,22 @@ function simulateWaitSpans(group: ParseGroup) {
     }
 
     time += 1;
+  }
+
+  for (const rank of group.ranks) {
+    for (const stream of rank.streams) {
+      for (const task of stream.tasks) {
+        if (task.name !== 'LocalPostTo' && task.name !== 'Post') {
+          continue;
+        }
+
+        if (task.nonReachable || task.postToTask) {
+          delete task.postToNowhere;
+        } else {
+          task.postToNowhere = true;
+        }
+      }
+    }
   }
 }
 

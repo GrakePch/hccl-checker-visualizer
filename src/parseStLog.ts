@@ -60,13 +60,14 @@ type AvailablePost = {
 };
 
 const rankHeaderPattern = /^rank id is (\d+)$/;
-const okPattern = /^\[ {7}OK \] ([^\s]+) \(\d+ ms\)$/;
+const runPattern = /^\[\s*RUN\s+\] (.+)$/;
+const resultPattern = /^\[\s+(?:OK|FAILED)\s+\] ([^\s]+) \(\d+ ms\)$/;
 const taskPattern =
   /^\[rankId:(\d+), queueId:(\d+), index:(\d+)\]\s+([A-Za-z_][A-Za-z0-9_]*)\[(.*)\]$/;
 
-function createGroup(): ParseGroup {
+function createGroup(testName: string): ParseGroup {
   return {
-    testName: '',
+    testName,
     ranks: [],
     rankMap: new Map(),
     taskCount: 0,
@@ -436,7 +437,11 @@ function simulateWaitSpans(group: ParseGroup) {
   }
 }
 
-function finalizeGroup(group: ParseGroup | null, testName: string, groups: TestCase[]) {
+function finalizeGroup(
+  group: ParseGroup | null,
+  fallbackTestName: string,
+  groups: TestCase[],
+) {
   if (!group || group.taskCount === 0) {
     return;
   }
@@ -444,7 +449,7 @@ function finalizeGroup(group: ParseGroup | null, testName: string, groups: TestC
   simulateWaitSpans(group);
 
   groups.push({
-    testName,
+    testName: group.testName || fallbackTestName,
     ranks: group.ranks.map((rank) => ({
       rankId: rank.rankId,
       streams: rank.streams.map((stream) => ({
@@ -458,12 +463,19 @@ function finalizeGroup(group: ParseGroup | null, testName: string, groups: TestC
 export function parseStLog(contents: string): TestCase[] {
   const groups: TestCase[] = [];
   let currentGroup: ParseGroup | null = null;
+  let latestRunName = '';
 
   for (const rawLine of contents.split(/\r?\n/)) {
     const line = rawLine.trim();
 
+    const runMatch = line.match(runPattern);
+    if (runMatch) {
+      latestRunName = runMatch[1] ?? '';
+      continue;
+    }
+
     if (line === 'rank id is 0') {
-      currentGroup = createGroup();
+      currentGroup = createGroup(latestRunName);
       continue;
     }
 
@@ -471,9 +483,9 @@ export function parseStLog(contents: string): TestCase[] {
       continue;
     }
 
-    const okMatch = line.match(okPattern);
-    if (okMatch) {
-      finalizeGroup(currentGroup, okMatch[1] ?? '', groups);
+    const resultMatch = line.match(resultPattern);
+    if (resultMatch) {
+      finalizeGroup(currentGroup, resultMatch[1] ?? '', groups);
       currentGroup = null;
       continue;
     }
